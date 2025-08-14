@@ -58,7 +58,7 @@ const AmpereonNavbar = () => {
   ];
 
   const filteredNavLinks = isMobile
-    ? navLinks.filter((link) => link.name !== 'Product')
+    ? navLinks
     : navLinks;
 
   /* ───────────────── framer variants ───────────────── */
