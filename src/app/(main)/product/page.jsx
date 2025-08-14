@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Head from 'next/head';
@@ -7,19 +6,50 @@ import Script from 'next/script';
 import Logo from "../../../images/Logo.png"
 import Image from 'next/image';
 
+// Function to detect mobile device based on window width
+const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
+
 // Video file mapping with full URLs
-const videos = {
-  1: { to: 'https://demo.ampereonenergy.com/ToCharger.mp4', from: 'https://demo.ampereonenergy.com/FromCharger.mp4' },
-  2: { to: 'https://demo.ampereonenergy.com/ToHolder.mp4', from: 'https://demo.ampereonenergy.com/FromHolder.mp4' },
-  3: { to: 'https://demo.ampereonenergy.com/ToHook.mp4', from: 'https://demo.ampereonenergy.com/FromHook.mp4' },
-  demo: { to: 'https://demo.ampereonenergy.com/productPageDemo.mp4', from: 'https://demo.ampereonenergy.com/reverseDemo.mp4' },
+const getVideoUrl = (baseUrl, isMobile) => {
+  if (isMobile) {
+    const urlParts = baseUrl.split('.');
+    const ext = urlParts.pop();
+    return `${urlParts.join('.')}${isMobile ? 'Mobile' : ''}.${ext}`;
+  }
+  return baseUrl;
 };
 
-// Interactive points configuration
+const videos = {
+  1: {
+    to: getVideoUrl('https://demo.ampereonenergy.com/ToCharger.mp4', isMobileDevice()),
+    from: getVideoUrl('https://demo.ampereonenergy.com/FromCharger.mp4', isMobileDevice())
+  },
+  2: {
+    to: getVideoUrl('https://demo.ampereonenergy.com/ToHolder.mp4', isMobileDevice()),
+    from: getVideoUrl('https://demo.ampereonenergy.com/FromHolder.mp4', isMobileDevice())
+  },
+  3: {
+    to: getVideoUrl('https://demo.ampereonenergy.com/ToHook.mp4', isMobileDevice()),
+    from: getVideoUrl('https://demo.ampereonenergy.com/FromHook.mp4', isMobileDevice())
+  },
+  demo: {
+    to: getVideoUrl('https://demo.ampereonenergy.com/productPageDemo.mp4', isMobileDevice()),
+    from: getVideoUrl('https://demo.ampereonenergy.com/reverseDemo.mp4', isMobileDevice())
+  },
+};
+
+// Interactive points configuration for desktop and mobile
 const interactivePoints = {
-  1: { x: '56%', y: '35%', label: 'Charging Module' },
-  2: { x: '90%', y: '40%', label: 'Wire Holder' },
-  3: { x: '6%', y: '50%', label: 'Hook Assembly' },
+  desktop: {
+    1: { x: '55%', y: '35%', label: 'Charging Module' },
+    2: { x: '78%', y: '25%', label: 'Wire Holder' },
+    3: { x: '2%', y: '30%', label: 'Hook Assembly' },
+  },
+  mobile: {
+    1: { x: '45%', y: '37%', label: 'Charging Module' },
+    2: { x: '85%', y: '45%', label: 'Wire Holder' },
+    3: { x: '3%', y: '42%', label: 'Hook Assembly' },
+  }
 };
 
 // Professional descriptions for each component
@@ -52,6 +82,9 @@ export default function VideoViewer() {
   const [loadingStartTime, setLoadingStartTime] = useState(null);
   const videoRef = useRef(null);
 
+  // Select interactive points based on device type
+  const points = isMobileDevice() ? interactivePoints.mobile : interactivePoints.desktop;
+
   // List of all video keys to check loading status
   const allVideos = [
     ...Object.keys(videos).filter(key => key !== 'demo').map(key => `to-${key}`),
@@ -66,7 +99,6 @@ export default function VideoViewer() {
     { progress: 50, message: "Preparing Components..." },
     { progress: 90, message: "Ready" }
   ];
-
   const totalVideos = allVideos.length;
   const isLoaded = allVideos.every(key => loadedVideos[key]);
 
@@ -86,19 +118,17 @@ export default function VideoViewer() {
         const elapsed = Date.now() - loadingStartTime;
         const progress = Math.min((elapsed / loadingDuration) * 100, 100);
         setFakeProgress(progress);
-
         const currentMsg = loadingMessages
           .slice()
           .reverse()
           .find(msg => progress >= msg.progress) || loadingMessages[0];
-        
+
         if (progress >= 100 && isLoaded) {
           setCurrentState('start');
           setShowPoster(true);
           clearInterval(interval);
         }
       }, 50);
-
       return () => clearInterval(interval);
     }
   }, [currentState, loadingStartTime, loadingDuration, isLoaded]);
@@ -110,13 +140,12 @@ export default function VideoViewer() {
         const [type, num] = key.split('-');
         const videoUrl = num === 'demo' ? videos.demo[type === 'to' ? 'to' : 'from'] : videos[num][type === 'to' ? 'to' : 'from'];
         try {
-          const response = await fetch(videoUrl, { 
-            method: 'GET', 
+          const response = await fetch(videoUrl, {
+            method: 'GET',
             headers: { Range: 'bytes=0-1' },
             mode: 'cors'
           });
           if (!response.ok) throw new Error(`Video not found: ${videoUrl} (Status: ${response.status})`);
-
           return new Promise((resolve) => {
             const video = document.createElement('video');
             video.preload = 'auto';
@@ -146,11 +175,9 @@ export default function VideoViewer() {
           });
         }
       });
-
       const results = await Promise.all(promises);
       results.forEach(key => handleVideoLoaded(key));
     };
-
     loadVideos().catch(err => {
       setError('Unable to load interactive content. Please refresh to try again.');
     });
@@ -213,7 +240,7 @@ export default function VideoViewer() {
       videoRef.current.currentTime = videoRef.current.duration - 0.01;
       videoRef.current.pause();
     }
-    
+
     setTimeout(() => {
       if (currentState === 'playingTo') {
         setCurrentState('atPOI');
@@ -269,7 +296,6 @@ export default function VideoViewer() {
       .slice()
       .reverse()
       .find(msg => fakeProgress >= msg.progress) || loadingMessages[0];
-
     return (
       <div className="flex items-center justify-center h-screen bg-[#0A0A0A] text-white overflow-hidden">
         <motion.div
@@ -284,14 +310,13 @@ export default function VideoViewer() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            <Image 
+            <Image
               src={Logo}
-              alt="Ampereon Logo" 
+              alt="Ampereon Logo"
               className="h-8 w-auto mx-auto"
             />
             <p className="text-gray-400 text-sm">Interactive Product Tour</p>
           </motion.div>
-
           <motion.div
             className="text-center mb-6"
             key={currentMsg.message}
@@ -301,7 +326,6 @@ export default function VideoViewer() {
           >
             <p className="text-gray-300 text-sm">{currentMsg.message}</p>
           </motion.div>
-
           <motion.div
             className="relative w-full h-1 bg-[#2A2A2A] rounded-full"
             initial={{ opacity: 0 }}
@@ -314,7 +338,6 @@ export default function VideoViewer() {
               transition={{ duration: 0.3, ease: 'easeOut' }}
             />
           </motion.div>
-
           <AnimatePresence>
             {error && (
               <motion.div
@@ -331,6 +354,10 @@ export default function VideoViewer() {
       </div>
     );
   }
+
+  const posterUrl = isMobileDevice()
+    ? 'https://demo.ampereonenergy.com/productPosterMobile.png'
+    : 'https://demo.ampereonenergy.com/productPoster.png';
 
   return (
     <div className="relative h-screen bg-black overflow-hidden">
@@ -353,11 +380,10 @@ export default function VideoViewer() {
         controls={false}
         playsInline
       />
-
       {/* Product Poster */}
       <div className={`absolute inset-0 ${showPoster ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300 pointer-events-none`}>
-        <img 
-          src="https://demo.ampereonenergy.com/productPoster.png" 
+        <img
+          src={posterUrl}
           alt="Ampereon"
           className="w-full h-full object-cover"
           onError={(e) => {
@@ -366,12 +392,11 @@ export default function VideoViewer() {
           }}
         />
       </div>
-
       {/* Interactive Points Overlay */}
       <AnimatePresence>
         {currentState === 'start' && (
           <div className="absolute inset-0 pointer-events-none">
-            {Object.entries(interactivePoints).map(([poi, point]) => (
+            {Object.entries(points).map(([poi, point]) => (
               <motion.div
                 key={poi}
                 className="absolute pointer-events-auto"
@@ -404,7 +429,6 @@ export default function VideoViewer() {
           </div>
         )}
       </AnimatePresence>
-
       {/* View Demo Button */}
       <AnimatePresence>
         {currentState === 'start' && (
@@ -426,7 +450,6 @@ export default function VideoViewer() {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* Back Button for POI */}
       <AnimatePresence>
         {currentState === 'atPOI' && !showDescription && (
@@ -448,7 +471,6 @@ export default function VideoViewer() {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* Professional Description Panel */}
       <AnimatePresence>
         {showDescription && currentPOI && (
@@ -477,11 +499,9 @@ export default function VideoViewer() {
                   ×
                 </button>
               </div>
-              
               <p className="text-gray-300 leading-relaxed mb-8 text-base">
                 {descriptions[currentPOI].content}
               </p>
-              
               <div className="flex gap-3">
                 <motion.button
                   whileHover={{ scale: 1.02 }}
@@ -491,7 +511,6 @@ export default function VideoViewer() {
                 >
                   Return to Overview
                 </motion.button>
-                
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
