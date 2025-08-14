@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Head from 'next/head';
 import Script from 'next/script';
 import pricingData from '../../data/pricingData.json';
-import { db } from '../../firebaseConfig.js';
+import { db } from '../../app/firebaseConfig.js';
 import { collection, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';

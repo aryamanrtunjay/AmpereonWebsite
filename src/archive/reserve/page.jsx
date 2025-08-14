@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { db } from '../../firebaseConfig.js';
+import { db } from '../../app/firebaseConfig.js';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import Script from 'next/script';
 import { Lock, Shield, Star, ChevronDown, Check, Users } from 'lucide-react';

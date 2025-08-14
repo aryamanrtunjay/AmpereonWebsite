@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Zap, Wifi, DollarSign, Battery, Clock, ChevronRight, ArrowRight, Star, Users, Heart, Globe, Shield, Check, Link } from 'lucide-react';
-import { db } from "../firebaseConfig.js";
+import { db } from "../app/firebaseConfig.js";
 import { collection, getDocs, query, orderBy, limit, where, getFirestore } from 'firebase/firestore';
-import OrderChoiceModal from '../../components/OrderChoiceModal';
+import OrderChoiceModal from '../components/OrderChoiceModal.jsx';
 
 
 // Simplified pattern overlay

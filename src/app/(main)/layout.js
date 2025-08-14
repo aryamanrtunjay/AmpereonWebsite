@@ -56,13 +56,8 @@ export default function RootLayout({ children }) {
         }}
       />
       </head>
-      {/* <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      > */}
       <body className={chakraPetch.className}>
-        <Navbar/>
         {children}
-        <Footer/>
         <Analytics/>
       </body>
     </html>

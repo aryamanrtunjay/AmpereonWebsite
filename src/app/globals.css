@@ -1,25 +1,145 @@
+/* --- Tailwind directives (keep these at the top of globals.css) --- */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* --- Tokens --- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --gold-1: #FFDA47;
+  --gold-2: #CEA331;
+  --gold-3: #9D7C27;
+
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-brd: rgba(255, 255, 255, 0.12);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* --- Utilities --- */
+@layer utilities {
+  /* Luxury glass base */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(14px) saturate(1.15);
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    border: 1px solid var(--glass-brd);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 8px 30px rgba(0, 0, 0, 0.35);
   }
-}
 
-.inter {
-  font-family: "Inter", sans-serif;
-  font-optical-sizing: auto;
-}
+  /* Liquid caustics overlay */
+  .caustics {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate; /* contain blend effects */
+  }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
+  .caustics::before,
+  .caustics::after {
+    content: "";
+    position: absolute;
+    inset: -20%;
+    z-index: -1;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    mix-blend-mode: screen;
+    opacity: 0.26;
+    filter: blur(8px) saturate(1.1) contrast(1.05);
+    animation: caustics-drift 18s linear infinite, caustics-rotate 32s linear infinite;
+    will-change: transform, background-position;
+  }
+
+  /* Broad soft glows + streaks */
+  .caustics::before {
+    background-image:
+      radial-gradient(60% 100% at 20% 10%, rgba(255,255,255,0.08) 0%, transparent 60%),
+      conic-gradient(from 0deg at 50% 50%,
+        rgba(255,255,255,0.00) 0 15%,
+        rgba(255,255,255,0.25) 16% 18%,
+        rgba(255,255,255,0.00) 19% 34%,
+        rgba(255,255,255,0.25) 35% 37%,
+        rgba(255,255,255,0.00) 38% 53%,
+        rgba(255,255,255,0.25) 54% 56%,
+        rgba(255,255,255,0.00) 57% 72%,
+        rgba(255,255,255,0.25) 73% 75%,
+        rgba(255,255,255,0.00) 76% 100%
+      ),
+      radial-gradient(120% 80% at 80% 80%, rgba(255,255,255,0.06) 0%, transparent 70%);
+    background-blend-mode: screen;
+  }
+
+  /* Tight shimmering interference pattern */
+  .caustics::after {
+    background-image:
+      repeating-conic-gradient(
+        from 0deg at 50% 50%,
+        rgba(255,255,255,0.15) 0deg 8deg,
+        rgba(255,255,255,0.00) 8deg 16deg
+      ),
+      conic-gradient(from 90deg at 45% 55%,
+        rgba(255,255,255,0.00) 0 10%,
+        rgba(255,255,255,0.20) 11% 12%,
+        rgba(255,255,255,0.00) 13% 28%,
+        rgba(255,255,255,0.20) 29% 30%,
+        rgba(255,255,255,0.00) 31% 46%,
+        rgba(255,255,255,0.20) 47% 48%,
+        rgba(255,255,255,0.00) 49% 64%,
+        rgba(255,255,255,0.20) 65% 66%,
+        rgba(255,255,255,0.00) 67% 82%,
+        rgba(255,255,255,0.20) 83% 84%,
+        rgba(255,255,255,0.00) 85% 100%
+      );
+    background-size: 200% 200%, 140% 140%;
+    animation: caustics-drift 24s linear infinite reverse, caustics-rotate 48s linear infinite reverse;
+    opacity: 0.20;
+  }
+
+  /* Optional: subtle gold edge glints */
+  .caustics-gold-edge::before {
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,0.08),
+      inset 0 0 40px rgba(255,218,71,0.08);
+  }
+  .caustics-gold-edge::after {
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(255,218,71,0.18), transparent 35%),
+      radial-gradient(circle at 85% 90%, rgba(206,163,49,0.14), transparent 40%);
+    mix-blend-mode: overlay;
+    opacity: 0.28;
+  }
+
+  /* Intensity modifiers */
+  .caustics-subtle::before,
+  .caustics-subtle::after {
+    opacity: 0.12 !important;
+    filter: blur(10px) saturate(1.05);
+  }
+  .caustics-strong::before,
+  .caustics-strong::after {
+    opacity: 0.36 !important;
+  }
+
+  /* Animations */
+  @keyframes caustics-drift {
+    0%   { transform: translate3d(-4%, -3%, 0) scale(1.05); }
+    50%  { transform: translate3d(4%, 3%, 0) scale(1.08); }
+    100% { transform: translate3d(-4%, -3%, 0) scale(1.05); }
+  }
+  @keyframes caustics-rotate {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  /* Accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    .caustics::before,
+    .caustics::after { animation: none; }
+  }
+
+  /* Optional: gold gradient text helper */
+  .gold-text {
+    background: linear-gradient(90deg, var(--gold-1), var(--gold-2), var(--gold-3));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
 }

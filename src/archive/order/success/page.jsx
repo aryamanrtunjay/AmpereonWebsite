@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../../../firebaseConfig.js';
+import { db } from '../../../app/firebaseConfig.js';
 import Head from 'next/head';
 import Script from 'next/script';
 

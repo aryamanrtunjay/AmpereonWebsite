@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
-import { db, storage } from '../../firebaseConfig.js'; // Adjust path if needed, assuming storage is exported
+import { db, storage } from '../../app/firebaseConfig.js'; // Adjust path if needed, assuming storage is exported
 import { collection, addDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { ChevronRight, User, Mail, Calendar, Clock, Tool, Star, Briefcase, CheckSquare, FileText, Heart, Check, X, File } from 'lucide-react';

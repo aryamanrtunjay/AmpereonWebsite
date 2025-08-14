@@ -2,9 +2,9 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { ChevronDown, Zap, Wifi, DollarSign, Battery, Clock, ChevronRight, Check, Home, Settings, Users, Heart } from 'lucide-react';
-import { db } from "../firebaseConfig.js";
+import { db } from "../app/firebaseConfig.js";
 import { collection, getDocs, query, orderBy, limit, where } from 'firebase/firestore';
-import OrderChoiceModal from '../../components/OrderChoiceModal';
+import OrderChoiceModal from '../components/OrderChoiceModal.jsx';
 
 // Lazy load non-critical components
 const SubtlePattern = React.lazy(() => Promise.resolve({ default: ({ opacity = 0.03 }) => (

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { db } from '../../firebaseConfig.js'; // Adjust path if needed
+import { db } from '../../app/firebaseConfig.js'; // Adjust path if needed
 import { collection, addDoc } from 'firebase/firestore';
 import axios from 'axios';
 import { ChevronRight, User, Mail, Car, Check, X } from 'lucide-react';

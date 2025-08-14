@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { db } from '../../../firebaseConfig.js';
+import { db } from '../../../app/firebaseConfig.js';
 import { collection, getDocs, query } from 'firebase/firestore';
 import { CheckCircle, ArrowRight, Car } from 'lucide-react';
 

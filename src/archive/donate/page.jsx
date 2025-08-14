@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { db } from '../../firebaseConfig.js';
+import { db } from '../../app/firebaseConfig.js';
 import Script from 'next/script';
 import Head from 'next/head';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
