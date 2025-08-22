@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { Chakra_Petch } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/react"
-import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Script from "next/script";
 
@@ -60,7 +59,6 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       > */}
       <body className={chakraPetch.className}>
-        <Navbar/>
         {children}
         <Footer/>
         <Analytics/>

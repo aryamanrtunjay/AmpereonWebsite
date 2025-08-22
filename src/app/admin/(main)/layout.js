@@ -190,7 +190,7 @@ export default function AdminLayout({ children }) {
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex h-screen flex-col justify-between overflow-y-auto">
+  <div className="flex h-screen flex-col justify-between overflow-y-auto">
           <div>
             <div className="flex items-center justify-center h-16 bg-teal-800">
               <h2 className="text-xl font-bold text-white">EVolve Admin</h2>

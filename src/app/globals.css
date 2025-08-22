@@ -23,3 +23,10 @@ body {
   color: var(--foreground);
   background: var(--background);
 }
+
+/* Prevent unexpected horizontal scrollbars across the app */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}

@@ -58,6 +58,20 @@ const AmpereonFooter = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Lock body scroll when a modal is open to prevent double scrollbars
+  useEffect(() => {
+    const anyModalOpen = showPrivacyPolicy || showTermsOfService;
+    const originalOverflow = document.body.style.overflow;
+    if (anyModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = originalOverflow || '';
+    }
+    return () => {
+      document.body.style.overflow = originalOverflow || '';
+    };
+  }, [showPrivacyPolicy, showTermsOfService]);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -106,7 +120,7 @@ const AmpereonFooter = () => {
 
   return (
     <>
-      <footer className="bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0F0F0F] relative overflow-hidden border-t border-[#D4AF37]/20">
+  <footer className="bg-gradient-to-br from-[#0A0A0A] via-[#1A1A1A] to-[#0F0F0F] relative border-t border-[#D4AF37]/20">
         {/* Dark elegant background patterns */}
         <div className="absolute inset-0 opacity-[0.03]" 
              style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, #D4AF37 1px, transparent 0)', backgroundSize: '60px 60px' }} />
