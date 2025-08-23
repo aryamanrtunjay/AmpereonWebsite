@@ -361,7 +361,7 @@ const AmpereonLanding = () => {
           <h1 className="font-light leading-tight mb-8 text-white"
               style={{ fontSize: 'clamp(2.5rem,5.5vw,4.5rem)' }}>
             Save <span className="font-bold text-[#D4AF37]">$266/year</span> on EV charging <br />
-            with <span className="font-bold text-[#D4AF37]">AmplifyAI automation</span>
+            with <span className="font-bold text-[#D4AF37]">Ampereon</span>
           </h1>
 
           <p className="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light mb-10">
@@ -522,7 +522,7 @@ const AmpereonLanding = () => {
               </h2>
               
               <p className="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto font-light">
-                Get started in minutes. AmplifyAI immediately begins learning your patterns to maximize savings.
+                Get started in minutes. Ampereon immediately begins learning your patterns to maximize savings.
               </p>
             </motion.div>
 
