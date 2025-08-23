@@ -121,8 +121,8 @@ const AmpereonNavbar = () => {
         {/* Subtle top accent line */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#D4AF37]/60 to-transparent" />
         
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="flex h-20 items-center justify-between">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex h-16 sm:h-20 items-center justify-between">
             {/* Logo - Enhanced with subtle glow */}
             <motion.a
               href="/"
@@ -134,7 +134,7 @@ const AmpereonNavbar = () => {
               <Image 
                 src={Logo} 
                 alt="Ampereon Logo" 
-                className="h-10 w-auto relative z-10 transition-all duration-300 group-hover:brightness-110" 
+                className="h-8 sm:h-10 w-auto relative z-10 transition-all duration-300 group-hover:brightness-110" 
               />
             </motion.a>
 
@@ -180,7 +180,7 @@ const AmpereonNavbar = () => {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="md:hidden p-3 rounded-xl bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 
+              className="md:hidden p-2.5 sm:p-3 rounded-xl bg-[#D4AF37]/10 hover:bg-[#D4AF37]/20 
                        transition-all duration-300"
             >
               {isMobileMenuOpen ? (
@@ -241,7 +241,7 @@ const AmpereonNavbar = () => {
               </div>
 
               {/* Navigation Links with clean styling */}
-              <div className="flex-1 px-6 py-8">
+              <div className="flex-1 px-5 sm:px-6 py-6 sm:py-8">
                 {filteredNavLinks.map((link, i) => (
                   <motion.a
                     key={link.name}
@@ -252,7 +252,7 @@ const AmpereonNavbar = () => {
                     animate="open"
                     onClick={() => setIsMobileMenuOpen(false)}
                     whileHover={{ x: 4 }}
-                    className="block py-4 text-lg font-medium text-gray-200 hover:text-[#D4AF37] 
+                    className="block py-3 sm:py-4 text-base sm:text-lg font-medium text-gray-200 hover:text-[#D4AF37] 
                              transition-all duration-200 border-b border-[#D4AF37]/10 last:border-b-0"
                   >
                     {link.name}
@@ -261,19 +261,19 @@ const AmpereonNavbar = () => {
               </div>
 
               {/* Mobile CTA */}
-              <div className="border-t border-[#D4AF37]/15 p-6">
+        <div className="border-t border-[#D4AF37]/15 p-5 sm:p-6">
                 <motion.button
                   onClick={openModal}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] 
-                           px-6 py-4 font-medium text-white
+          className="w-full rounded-lg bg-gradient-to-r from-[#D4AF37] to-[#B8860B] 
+               px-5 py-3 sm:px-6 sm:py-4 font-medium text-white
                            transition-all duration-200"
                 >
                   Order Now
                 </motion.button>
 
-                <p className="mt-3 text-center text-sm text-gray-400">
+        <p className="mt-2 sm:mt-3 text-center text-xs sm:text-sm text-gray-400">
                   $5 fully refundable deposit
                 </p>
               </div>

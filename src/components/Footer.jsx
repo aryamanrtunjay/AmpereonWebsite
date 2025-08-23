@@ -127,9 +127,9 @@ const AmpereonFooter = () => {
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#D4AF37]/5 rounded-full blur-3xl" />
         
-        <div className="max-w-7xl mx-auto px-6 py-20 relative z-10">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-20 relative z-10">
           {/* Main footer content */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 sm:gap-12 mb-12 sm:mb-16">
             {/* Brand Column - Dark Enhanced */}
             <div className="lg:col-span-1">
               <motion.div
@@ -141,7 +141,7 @@ const AmpereonFooter = () => {
                 <Image 
                   src={Logo}
                   alt="Ampereon Logo" 
-                  className="h-10 w-auto mb-6"
+                  className="h-8 sm:h-10 w-auto mb-6"
                 />
                 <p className="text-gray-300 mb-8 leading-relaxed font-light">
                   The future of EV charging. Hands-free, automatic, and intelligent charging solutions for the modern world.
@@ -181,7 +181,7 @@ const AmpereonFooter = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
               >
-                <h4 className="font-medium text-white mb-6 text-lg tracking-wide">Navigation</h4>
+                <h4 className="font-medium text-white mb-4 sm:mb-6 text-lg tracking-wide">Navigation</h4>
                 <ul className="space-y-4">
                   {quickLinks.map((link, index) => (
                     <motion.li 
@@ -214,7 +214,7 @@ const AmpereonFooter = () => {
                 transition={{ duration: 0.6, delay: 0.3 }}
                 viewport={{ once: true }}
               >
-                <h4 className="font-medium text-white mb-6 text-lg tracking-wide">Get in Touch</h4>
+                <h4 className="font-medium text-white mb-4 sm:mb-6 text-lg tracking-wide">Get in Touch</h4>
                 <ul className="space-y-5">
                   <motion.li 
                     className="flex items-start gap-4 text-gray-300 group"
@@ -261,7 +261,7 @@ const AmpereonFooter = () => {
                 transition={{ duration: 0.6, delay: 0.4 }}
                 viewport={{ once: true }}
               >
-                <h4 className="font-medium text-white mb-6 text-lg tracking-wide">Stay Connected</h4>
+                <h4 className="font-medium text-white mb-4 sm:mb-6 text-lg tracking-wide">Stay Connected</h4>
                 <p className="text-gray-300 mb-6 font-light leading-relaxed">
                   Get exclusive updates on shipping, new features, and special offers for early supporters.
                 </p>
@@ -318,13 +318,13 @@ const AmpereonFooter = () => {
 
           {/* Bottom Bar - Dark Enhanced */}
           <motion.div 
-            className="pt-8 border-t border-[#D4AF37]/20"
+            className="pt-6 sm:pt-8 border-t border-[#D4AF37]/20"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
             viewport={{ once: true }}
           >
-            <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 sm:gap-6">
               <p className="text-sm text-gray-400 font-light tracking-wide">
                 © 2025 Ampereon Inc. All rights reserved. Crafted with precision in Washington.
               </p>

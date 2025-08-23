@@ -226,7 +226,7 @@ const HeroBackground = React.memo(() => {
     <div className="absolute inset-0 z-10 pointer-events-none">
       {/* Aurora-like gradient blobs */}
       <motion.div
-        className="absolute -top-24 -right-16 w-[42rem] h-[42rem] rounded-full"
+        className="absolute -top-24 -right-16 w-[22rem] h-[22rem] sm:w-[32rem] sm:h-[32rem] md:w-[42rem] md:h-[42rem] rounded-full"
         style={{
           background: 'radial-gradient(closest-side, rgba(212,175,55,0.25), rgba(212,175,55,0))',
           filter: 'blur(40px)'
@@ -237,7 +237,7 @@ const HeroBackground = React.memo(() => {
       />
 
       <motion.div
-        className="absolute -bottom-24 -left-24 w-[38rem] h-[38rem] rounded-full"
+        className="absolute -bottom-24 -left-24 w-[20rem] h-[20rem] sm:w-[28rem] sm:h-[28rem] md:w-[38rem] md:h-[38rem] rounded-full"
         style={{
           background: 'radial-gradient(closest-side, rgba(184,134,11,0.22), rgba(184,134,11,0))',
           filter: 'blur(48px)'
@@ -355,7 +355,7 @@ const AmpereonLanding = () => {
 
         {/* Hero content for SaaS app */}
         <motion.div
-          className="relative z-20 px-6 max-w-6xl mx-auto text-center"
+          className="relative z-20 px-4 sm:px-6 max-w-6xl mx-auto text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -370,7 +370,7 @@ const AmpereonLanding = () => {
             <Image 
               src={Logo} 
               alt="Ampereon" 
-              className="h-16 w-auto"
+              className="h-12 sm:h-16 w-auto"
               priority
             />
           </motion.div>
@@ -391,15 +391,15 @@ const AmpereonLanding = () => {
             with <span className="font-bold text-[#D4AF37]">AmplifyAI automation</span>
           </h1>
 
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light mb-10">
+          <p className="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed font-light mb-10">
             Ampereon schedules charging for the lowest-cost, battery-friendly windows—fully automated. No hardware needed.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6 mb-12">
             <a href={getAppStoreLink()} target="_blank" rel="noopener noreferrer">
               <button
-                className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-medium rounded-lg
-                          hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all duration-300 flex items-center gap-2"
+                className="px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-medium rounded-lg
+                          hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all duration-300 flex items-center gap-2 mx-auto sm:mx-0"
               >
                 <Download className="w-5 h-5" />
                 Download App - Start Saving
@@ -407,8 +407,8 @@ const AmpereonLanding = () => {
             </a>
 
             <button
-              className="px-8 py-4 border border-[#D4AF37]/30 text-white font-medium rounded-lg
-                        hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/50 transition-all duration-300 backdrop-blur-sm"
+              className="px-6 py-3 sm:px-8 sm:py-4 border border-[#D4AF37]/30 text-white font-medium rounded-lg
+                        hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/50 transition-all duration-300 backdrop-blur-sm mx-auto sm:mx-0"
               onClick={() => document.getElementById('features').scrollIntoView({ behavior: 'smooth' })}
             >
               <span className="flex items-center gap-2">
@@ -456,7 +456,7 @@ const AmpereonLanding = () => {
       {/* Benefits Section (replaces generic features) */}
       <Suspense fallback={null}>
         <motion.section 
-          className="py-20 px-6 bg-gradient-to-br from-[#0F0F0F] to-[#1A1A1A] relative"
+          className="py-16 sm:py-20 px-4 sm:px-6 bg-gradient-to-br from-[#0F0F0F] to-[#1A1A1A] relative"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -469,11 +469,33 @@ const AmpereonLanding = () => {
                 Why Choose <span className="font-semibold text-[#D4AF37]">Ampereon</span>
               </h2>
               
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
+              <p className="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto font-light">
                 The essentials that matter most: savings, battery health, automation, and sustainability—without changing your routine.
               </p>
             </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            {/* Mobile: four rows with dropdowns */}
+            <div className="md:hidden space-y-3">
+              {benefits.map((b, i) => (
+                <details key={i} className="group bg-[#2A2A2A]/60 backdrop-blur-sm rounded-lg border border-[#D4AF37]/20">
+                  <summary className="flex items-center justify-between px-4 py-3 cursor-pointer list-none">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#D4AF37]/20 to-[#B8860B]/20 flex items-center justify-center border border-[#D4AF37]/30 text-[#D4AF37]">
+                        {b.icon}
+                      </div>
+                      <div className="text-white font-semibold text-sm">{b.title}</div>
+                    </div>
+                    <span className="text-[#D4AF37] transition-transform duration-200 group-open:rotate-180">⌄</span>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-300 text-sm">
+                    <p className="mb-2">{b.description}</p>
+                    <span className="text-[#D4AF37] font-medium">{b.highlight}</span>
+                  </div>
+                </details>
+              ))}
+            </div>
+
+            {/* Desktop: keep existing grid cards */}
+            <div className="hidden md:grid grid-cols-2 gap-4 sm:gap-8 lg:gap-12">
               {benefits.map((b, i) => (
                 <motion.div
                   key={i}
@@ -483,20 +505,25 @@ const AmpereonLanding = () => {
                   whileInView="visible"
                   viewport={{ once: true }}
                 >
-                  <div className="bg-[#2A2A2A]/60 backdrop-blur-sm rounded-2xl p-8 h-full border border-[#D4AF37]/20 
-                               hover:border-[#D4AF37]/40 hover:bg-[#2A2A2A]/80 transition-all duration-300">
-                    <div className="flex items-start gap-6">
-                      <div className="flex items-center justify-center w-12 h-12 mb-4
+                  <div className="bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-8 h-full border border-[#D4AF37]/20 
+                               hover:border-[#D4AF37]/40 hover:bg-[#2A2A2A]/80 transition-all duration-300 flex flex-col">
+                    <div className="flex items-start gap-3 sm:gap-6">
+                      <div className="flex items-center justify-center w-9 h-9 sm:w-12 sm:h-12 mb-3 sm:mb-4
                                     bg-gradient-to-br from-[#D4AF37]/20 to-[#B8860B]/20 rounded-lg 
                                     border border-[#D4AF37]/30 text-[#D4AF37] flex-shrink-0">
                         {b.icon}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-semibold mb-3 text-white">{b.title}</h3>
-                        <p className="text-gray-300 leading-relaxed mb-4">{b.description}</p>
-                        <span className="inline-block text-sm font-medium text-[#D4AF37]">{b.highlight}</span>
+                        <h3 className="text-sm sm:text-xl font-semibold mb-1.5 sm:mb-3 text-white leading-snug">{b.title}</h3>
+                        {/* On mobile, align text to the card's left edge by adding a small negative margin to offset the icon gap */}
+                        <div className="-ml-[52px] sm:ml-0">
+                          <p className="text-gray-300 leading-relaxed mb-2.5 sm:mb-4 text-[11px] sm:text-base break-words text-left">{b.description}</p>
+                          <span className="hidden sm:inline-block text-[11px] sm:text-sm font-medium text-[#D4AF37] text-left">{b.highlight}</span>
+                        </div>
                       </div>
                     </div>
+                    {/* Mobile-only highlight pinned to the bottom of the card */}
+                    <span className="sm:hidden mt-auto pt-2 text-[11px] font-medium text-[#D4AF37] text-left">{b.highlight}</span>
                   </div>
                 </motion.div>
               ))}
@@ -508,7 +535,7 @@ const AmpereonLanding = () => {
       {/* How It Works Section */}
       <Suspense fallback={null}>
         <motion.section 
-          className="py-20 px-6 bg-[#1A1A1A] relative"
+          className="py-16 sm:py-20 px-4 sm:px-6 bg-[#1A1A1A] relative"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -521,13 +548,54 @@ const AmpereonLanding = () => {
                 How <span className="font-semibold text-[#D4AF37]">Ampereon</span> Works
               </h2>
               
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
+              <p className="text-base sm:text-xl text-gray-300 max-w-3xl mx-auto font-light">
                 Get started in minutes. AmplifyAI immediately begins learning your patterns to maximize savings.
               </p>
             </motion.div>
 
-            {/* How it works steps */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            {/* How it works steps - mobile accordion + desktop cards */}
+            {/* Mobile: compact accordions */}
+            <div className="md:hidden space-y-3 mb-16">
+              {[
+                {
+                  step: "01",
+                  title: "Download & Connect",
+                  desc: "Download the app, create your account, and connect your EV. Works with Tesla, BMW, Ford, Chevy, and all major brands.",
+                  icon: <Download className="w-6 h-6" />
+                },
+                {
+                  step: "02", 
+                  title: "AI Learns Your Routine",
+                  desc: "Our intelligent system analyzes your driving patterns, local electricity rates, and charging needs to create an optimal schedule.",
+                  icon: <Zap className="w-6 h-6" />
+                },
+                {
+                  step: "03",
+                  title: "Automatic Savings",
+                  desc: "Sit back and save. The app automatically schedules charging during off-peak hours and monitors your battery health 24/7.",
+                  icon: <DollarSign className="w-6 h-6" />
+                }
+              ].map((s, i) => (
+                <details key={i} className="group bg-[#2A2A2A]/60 backdrop-blur-sm rounded-lg border border-[#D4AF37]/20">
+                  <summary className="flex items-center justify-between px-4 py-3 cursor-pointer list-none">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#D4AF37]/20 to-[#B8860B]/20 flex items-center justify-center border border-[#D4AF37]/30 text-[#D4AF37]">
+                        {s.icon}
+                      </div>
+                      <div>
+                        <div className="text-xs text-[#D4AF37] font-medium">STEP {s.step}</div>
+                        <div className="text-white font-semibold">{s.title}</div>
+                      </div>
+                    </div>
+                    <span className="text-[#D4AF37] transition-transform duration-200 group-open:rotate-180">⌄</span>
+                  </summary>
+                  <div className="px-4 pb-4 text-gray-300">{s.desc}</div>
+                </details>
+              ))}
+            </div>
+
+            {/* Desktop: original three cards */}
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
               {[
                 {
                   step: "01",
@@ -579,29 +647,30 @@ const AmpereonLanding = () => {
             <div className="bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl p-8 border border-[#D4AF37]/20">
               <div className="flex flex-col md:flex-row gap-8 items-center">
                 <div className="md:w-1/2">
-                  <h3 className="text-3xl font-light mb-4 text-white">Smart Dashboard</h3>
-                  <p className="text-gray-300 leading-relaxed mb-6">
+                  <h3 className="text-2xl sm:text-3xl font-light mb-4 text-white">Smart Dashboard</h3>
+                  <p className="text-gray-300 leading-relaxed mb-6 text-sm sm:text-base">
                     Track your savings in real-time with detailed analytics. Monitor charging costs, 
                     battery health, and environmental impact all in one place.
                   </p>
                   
-                  <ul className="space-y-3 mb-8">
-                    {[
+                  <ul className="space-y-3 md:mb-8">
+                    {[ 
                       "Real-time cost tracking",
                       "Battery health monitoring", 
                       "Charging schedule optimization",
                       "Monthly savings reports",
                       "Environmental impact metrics"
                     ].map((feature, i) => (
-                      <li key={i} className="flex items-center gap-3 text-gray-300">
+                      <li key={i} className="flex items-center gap-3 text-gray-300 text-sm sm:text-base">
                         <Check className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
                         <span className="text-base">{feature}</span>
                       </li>
                     ))}
                   </ul>
 
-                  <a href={getAppStoreLink()} target="_blank" rel="noopener noreferrer">
-                    <button className="px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-medium rounded-lg
+                  {/* Desktop: keep button here */}
+                  <a href={getAppStoreLink()} target="_blank" rel="noopener noreferrer" className="hidden md:inline-block">
+                    <button className="px-5 py-3 sm:px-6 sm:py-3 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-medium rounded-lg
                                      hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all duration-300 flex items-center gap-2">
                       <Download className="w-5 h-5" />
                       Download Now
@@ -623,6 +692,16 @@ const AmpereonLanding = () => {
                       </div>
                     </div>
                   </div>
+                  {/* Mobile: move button under preview and center */}
+                  <div className="mt-8 md:hidden">
+                    <a href={getAppStoreLink()} target="_blank" rel="noopener noreferrer" className="block">
+                      <button className="px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-medium rounded-lg
+                                       hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all duration-300 flex items-center gap-2 mx-auto">
+                        <Download className="w-5 h-5" />
+                        Download Now
+                      </button>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -635,7 +714,7 @@ const AmpereonLanding = () => {
       {/* Pricing Section (single, monthly) */}
       <Suspense fallback={null}>
         <motion.section 
-          className="py-16 px-6 bg-gradient-to-br from-[#0F0F0F] to-[#1A1A1A] relative"
+          className="py-14 sm:py-16 px-4 sm:px-6 bg-gradient-to-br from-[#0F0F0F] to-[#1A1A1A] relative"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -655,7 +734,7 @@ const AmpereonLanding = () => {
             </motion.h2>
             
             <motion.p 
-              className="text-lg md:text-xl mb-8 text-gray-300 max-w-2xl mx-auto font-light text-center"
+              className="text-base sm:text-lg md:text-xl mb-8 text-gray-300 max-w-2xl mx-auto font-light text-center"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -665,7 +744,7 @@ const AmpereonLanding = () => {
             </motion.p>
 
             <motion.div 
-              className="bg-[#1A1A1A]/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-[#D4AF37]/20"
+              className="bg-[#1A1A1A]/60 backdrop-blur-sm rounded-2xl p-5 sm:p-6 md:p-8 border border-[#D4AF37]/20"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -676,10 +755,10 @@ const AmpereonLanding = () => {
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/20 text-[#D4AF37] text-xs font-medium mb-4">
                     Launch pricing
                   </div>
-                  <div className="text-4xl md:text-5xl font-light text-white mb-2">$8.49<span className="text-lg md:text-xl text-gray-400">/month</span></div>
+                  <div className="text-3xl sm:text-4xl md:text-5xl font-light text-white mb-2">$8.49<span className="text-base sm:text-lg md:text-xl text-gray-400">/month</span></div>
                   <p className="text-gray-300 font-light mb-6">Unlimited automation and insights. Cancel anytime.</p>
                   <a href={getAppStoreLink()} target="_blank" rel="noopener noreferrer">
-                    <button className="w-full md:w-auto px-8 py-3 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-medium 
+                    <button className="w-full md:w-auto px-6 py-3 sm:px-8 sm:py-3 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-medium 
                                      rounded-lg hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all duration-300">
                       Start 1-Week Free Trial
                     </button>
@@ -701,7 +780,7 @@ const AmpereonLanding = () => {
 
             {/* Value proposition */}
             <motion.div 
-              className="bg-[#1A1A1A]/60 backdrop-blur-sm rounded-lg p-6 border border-[#D4AF37]/20"
+              className="bg-[#1A1A1A]/60 backdrop-blur-sm rounded-lg p-5 sm:p-6 border border-[#D4AF37]/20"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -723,7 +802,7 @@ const AmpereonLanding = () => {
       {/* Combined FAQ + CTA Section */}
       <Suspense fallback={null}>
         <motion.section 
-          className="py-20 px-6 bg-[#1A1A1A] relative"
+          className="py-16 sm:py-20 px-4 sm:px-6 bg-[#1A1A1A] relative"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
@@ -740,7 +819,7 @@ const AmpereonLanding = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* CTA Side Card (Left on desktop) */}
               <motion.aside 
-                className="bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl border border-[#D4AF37]/20 p-6 h-fit lg:sticky lg:top-6 min-h-[420px] flex flex-col"
+                className="hidden lg:flex flex-col bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl border border-[#D4AF37]/20 p-6 lg:sticky lg:top-6 min-h-[420px]"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -771,17 +850,19 @@ const AmpereonLanding = () => {
                   {/* Savings note moved below the button */}
                 </div>
 
-                <a href={getAppStoreLink()} target="_blank" rel="noopener noreferrer" className="mt-auto pt-5">
-                  <button 
-                    className="w-full px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-semibold rounded-lg 
-                               hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300 flex items-center justify-center gap-2"
-                  >
-                    <Download className="w-5 h-5" />
-                    Download Free Trial
-                  </button>
-                </a>
-                <div className="mt-4 text-center text-gray-400 text-sm">
-                  Avg savings <span className="text-[#D4AF37] font-semibold">$266/yr</span> — pays for itself in ~2 weeks
+                <div className="mt-auto pt-5">
+                  <a href={getAppStoreLink()} target="_blank" rel="noopener noreferrer">
+                    <button 
+                      className="w-full px-6 py-3 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-semibold rounded-lg 
+                                 hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <Download className="w-5 h-5" />
+                      Download Free Trial
+                    </button>
+                  </a>
+                  <div className="mt-4 text-center text-gray-400 text-sm">
+                    Avg savings <span className="text-[#D4AF37] font-semibold">$266/yr</span> — pays for itself in ~2 weeks
+                  </div>
                 </div>
               </motion.aside>
 
