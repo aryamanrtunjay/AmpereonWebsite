@@ -1,7 +1,7 @@
 'use client';
-import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { ChevronDown, Zap, Smartphone, DollarSign, Battery, Clock, ChevronRight, Check, Shield, BarChart3, Wifi, Download, Star, Target, Leaf } from 'lucide-react';
+import React, { useState, Suspense } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronDown, Zap, Smartphone, DollarSign, Battery, ChevronRight, Check, Download, Target, Leaf } from 'lucide-react';
 import Image from 'next/image';
 import Logo from '../../images/Logo.png';
 
@@ -259,8 +259,6 @@ const HeroBackground = React.memo(() => {
 });
 
 const AmpereonLanding = () => {
-  const [activeFeature, setActiveFeature] = useState(0);
-  const heroRef = useRef(null);
   const [faqOpen, setFaqOpen] = useState({});
 
 
@@ -287,30 +285,6 @@ const AmpereonLanding = () => {
   };
 
 
-
-  // Updated testimonials for the SaaS app
-  const testimonials = [
-    {
-      name: "Kirit S.",
-      quote: "This app has saved me over $200 already this year! AmplifyAI automatically charges my car when rates are cheapest - I don't have to think about it.",
-      rating: 5,
-    },
-    {
-      name: "Andreas G.",
-      quote: "My battery health has noticeably improved since using Ampereon. The smart algorithms really do extend battery life.",
-      rating: 5,
-    },
-    {
-      name: "Vivaan P.",
-      quote: "Setup took 2 minutes and I immediately started saving money. The monthly reports show exactly how much I'm saving.",
-      rating: 5,
-    },
-    {
-      name: "Peter Z.",
-      quote: "For $8.49 a month, this app pays for itself in the first week. Best investment I've made for my EV.",
-      rating: 5,
-    },
-  ];
 
   // Benefits content adapted from alternative site (kept styling)
   const benefits = [
@@ -346,7 +320,6 @@ const AmpereonLanding = () => {
       {/* Hero Section */}
       <section
         className="relative min-h-screen flex items-center justify-center overflow-hidden"
-        ref={heroRef}
       >
   <Suspense fallback={null}><HeroBackground /></Suspense>
   <Suspense fallback={null}><SubtlePattern /></Suspense>

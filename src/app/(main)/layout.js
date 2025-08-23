@@ -1,20 +1,9 @@
-import { Geist, Geist_Mono } from "next/font/google";
 import { Chakra_Petch } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/react"
 import Footer from "@/components/Footer";
 import Script from "next/script";
 
 import "../globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const chakraPetch = Chakra_Petch({
   subsets: ["latin"],
@@ -40,11 +29,7 @@ export const metadata = {
 };
 
 // Ensure proper mobile viewport scaling
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-};
+export const viewport = { width: 'device-width', initialScale: 1, maximumScale: 1 };
 
 export default function RootLayout({ children }) {
   return (
@@ -62,9 +47,6 @@ export default function RootLayout({ children }) {
         }}
       />
       </head>
-      {/* <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      > */}
       <body className={chakraPetch.className}>
         {children}
         <Footer/>
