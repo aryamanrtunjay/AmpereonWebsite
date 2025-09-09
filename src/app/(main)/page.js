@@ -301,10 +301,10 @@ const AmpereonLanding = () => {
   ];
 
   return (
-    <div className="bg-[#0A0A0A] text-white overflow-x-hidden">
+    <div className="bg-[#0A0A0A] text-white overflow-hidden">
       {/* Hero Section */}
       <section
-        className="relative min-h-screen flex items-center justify-center overflow-visible"
+        className="relative min-h-screen flex items-center justify-center"
         ref={heroRef}
       >
         <motion.div className="absolute inset-0 z-0 pointer-events-none opacity-30">
