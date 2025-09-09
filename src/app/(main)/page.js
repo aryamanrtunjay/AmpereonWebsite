@@ -291,13 +291,13 @@ const AmpereonLanding = () => {
     { 
       title: 'Intelligent Savings', 
       description: 'Optimize charging during off-peak windows. Save around ~500 dollars annually with automated scheduling.', 
-      highlight: 'Up to $30 monthly savings', 
+      highlight: 'Up to $50 monthly savings', 
       icon: <DollarSign className="w-6 h-6" /> 
     },
     { 
       title: 'Battery Preservation', 
       description: 'Reduce degradation by charging in healthier windows learned from your routine.', 
-      highlight: 'Healthier charge cycles', 
+      highlight: 'Add 3 years to battery lifespan', 
       icon: <Battery className="w-6 h-6" /> 
     },
     { 
@@ -309,7 +309,7 @@ const AmpereonLanding = () => {
     { 
       title: 'Sustainable Impact', 
       description: 'Shift demand off-peak to ease grid load and use cleaner energy.', 
-      highlight: 'Lower carbon footprint', 
+      highlight: 'Reduce 300 kg of carbon emissions annually', 
       icon: <Leaf className="w-6 h-6" /> 
     },
   ];
@@ -764,7 +764,7 @@ const AmpereonLanding = () => {
                   Average savings: <span className="text-[#D4AF37] font-semibold">$530/year per car</span>
                 </div>
                 <div className="text-sm text-gray-400">
-                  Premium subscription pays for itself in just 2 weeks of use
+                  Premium subscription pays for itself in just a week of use
                 </div>
               </div>
             </motion.div>
