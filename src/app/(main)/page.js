@@ -290,7 +290,7 @@ const AmpereonLanding = () => {
   const benefits = [
     { 
       title: 'Intelligent Savings', 
-      description: 'Optimize charging during off-peak windows. Save $300–$400 annually with automated scheduling.', 
+      description: 'Optimize charging during off-peak windows. Save around ~500 dollars annually with automated scheduling.', 
       highlight: 'Up to $30 monthly savings', 
       icon: <DollarSign className="w-6 h-6" /> 
     },
@@ -360,7 +360,7 @@ const AmpereonLanding = () => {
 
           <h1 className="font-light leading-tight mb-8 text-white"
               style={{ fontSize: 'clamp(2.5rem,5.5vw,4.5rem)' }}>
-            Save <span className="font-bold text-[#D4AF37]">$266/year</span> on EV charging <br />
+            Save <span className="font-bold text-[#D4AF37]">$530/year</span> on EV charging <br />
             with <span className="font-bold text-[#D4AF37]">Ampereon</span>
           </h1>
 
@@ -761,7 +761,7 @@ const AmpereonLanding = () => {
             >
               <div className="text-center">
                 <div className="text-base md:text-lg text-gray-300 mb-2">
-                  Average savings: <span className="text-[#D4AF37] font-semibold">$266/year per car</span>
+                  Average savings: <span className="text-[#D4AF37] font-semibold">$530/year per car</span>
                 </div>
                 <div className="text-sm text-gray-400">
                   Premium subscription pays for itself in just 2 weeks of use
@@ -834,7 +834,7 @@ const AmpereonLanding = () => {
                     </button>
                   </a>
                   <div className="mt-4 text-center text-gray-400 text-sm">
-                    Avg savings <span className="text-[#D4AF37] font-semibold">$266/yr</span> — pays for itself in ~2 weeks
+                    Avg savings <span className="text-[#D4AF37] font-semibold">$530/yr</span> — pays for itself in a week!
                   </div>
                 </div>
               </motion.aside>
@@ -845,7 +845,7 @@ const AmpereonLanding = () => {
                   { q: 'What if my schedule changes unexpectedly?', a: "Override at any time—you’re always in control." },
                   { q: 'Do I need additional hardware?', a: "No. It works via your Tesla’s built-in systems." },
                   { q: 'How secure is my data?', a: "Secure OAuth + encryption; revoke access instantly, any time." },
-                  { q: 'What are typical savings?', a: 'Most drivers see ~$20–$30/month in electricity savings.' },
+                  { q: 'What are typical savings?', a: 'Most drivers see ~$30–$40/month in electricity savings.' },
                   { q: 'Does this help battery life?', a: 'Yes—optimal timing reduces stress and slows degradation.' },
                 ].map((faq, index) => (
                   <motion.div
