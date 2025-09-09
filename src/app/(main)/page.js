@@ -1,877 +1,714 @@
 'use client';
-import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { motion, useInView } from 'framer-motion';
-import { ChevronDown, Zap, Wifi, DollarSign, Battery, Clock, ChevronRight, Check, Home, Settings, Users, Heart } from 'lucide-react';
-import { db } from "../firebaseConfig.js";
-import { collection, getDocs, query, orderBy, limit, where } from 'firebase/firestore';
-import OrderChoiceModal from '../../components/OrderChoiceModal';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
+import { 
+  ChevronDown, 
+  Zap, 
+  ArrowRight, 
+  Check, 
+  Battery, 
+  DollarSign,
+  Leaf,
+  Shield,
+  Clock,
+  TrendingUp,
+  Award,
+  Users,
+  Play,
+  X,
+  Menu,
+  Star
+} from 'lucide-react';
+import Image from 'next/image';
 
-// Lazy load non-critical components
-const SubtlePattern = React.lazy(() => Promise.resolve({ default: ({ opacity = 0.03 }) => (
-  <div className="absolute inset-0 pointer-events-none" style={{ opacity }}>
-    <div className="w-full h-full bg-[radial-gradient(circle,#D4AF37_1px,transparent_1px)] bg-[size:60px_60px]" />
-  </div>
-) }));
+// Import Logo - you'll need to add this
+// import Logo from '../../images/Logo.png';
 
 const AmpereonLanding = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [activeStep, setActiveStep] = useState(0);
-  const [activeComponent, setActiveComponent] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const { scrollY } = useScroll();
   const heroRef = useRef(null);
+  const heroInView = useInView(heroRef, { once: true });
+  
+  // Parallax transforms
+  const heroY = useTransform(scrollY, [0, 500], [0, 150]);
+  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
 
-  const useCounter = (end, duration = 2000) => {
-    const [count, setCount] = useState(0);
-    const ref = useRef();
-    const inView = useInView(ref, { once: true });
-    
-    useEffect(() => {
-      if (inView) {
-        let startTime;
-        const animate = (timestamp) => {
-          if (!startTime) startTime = timestamp;
-          const progress = Math.min((timestamp - startTime) / duration, 1);
-          setCount(Math.floor(progress * end));
-          if (progress < 1) requestAnimationFrame(animate);
-        };
-        requestAnimationFrame(animate);
-      }
-    }, [inView, end, duration]);
-    
-    return { count, ref };
+  // Auto-rotate testimonials
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % 3);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Floating particles background
+  const FloatingParticles = () => {
+    return (
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 rounded-full"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, Math.random() * 20 - 10, 0],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: Math.random() * 2,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
+    );
   };
-
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const fadeUpVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }
-    }
-  };
-
-  // Merged features with benefits for more value per item
-  const features = [
-    { 
-      icon: <Zap className="w-6 h-6" />, 
-      title: "Automatic Home EV Charger", 
-      desc: "Hands-free charging activates on arrival, eliminating daily plugging. Compatible with all Level 2 chargers, saving 5 minutes per session (30 hours/year).", 
-      stats: [{ value: "30hrs", label: "Time saved/year" }]
-    },
-    { 
-      icon: <Wifi className="w-6 h-6" />, 
-      title: "Universal Compatibility & Integration", 
-      desc: "Seamless upgrade for existing home EV stations. AI integrates with utility rates and EV data for optimized scheduling, supporting all major EV models.", 
-      stats: [{ value: "100%", label: "EV compatibility" }]
-    },
-    { 
-      icon: <DollarSign className="w-6 h-6" />, 
-      title: "Cost Savings & Efficiency", 
-      desc: "AI shifts charging to off-peak hours, cutting costs by up to 40% ($450/year average). Includes tax credit eligibility and real-time cost tracking.", 
-      stats: [{ value: "40%", label: "Cost reduction" }]
-    },
-    { 
-      icon: <Battery className="w-6 h-6" />, 
-      title: "Battery Health & Sustainability", 
-      desc: "Machine learning prevents overcharging, extending battery life by 3 years. Maximizes renewable energy use, reducing carbon footprint by 20-30%.", 
-      stats: [{ value: "3yrs", label: "Battery extension" }]
-    }
-  ];
-
-  const steps = [
-    { 
-      num: "01", 
-      title: "Installation", 
-      desc: "Attach to existing charger in 30 minutes - no electrician needed. Includes hardware and guided app setup.", 
-      icon: Zap,
-      detail: "DIY with video tutorials; compatible with all Level 2 units."
-    },
-    { 
-      num: "02", 
-      title: "Setup & Integration", 
-      desc: "Connect via WiFi and pair with your EV. App detects vehicle and utility rates automatically.", 
-      icon: Wifi,
-      detail: "Secure setup in 2 minutes; OTA updates for future compatibility."
-    },
-    { 
-      num: "03", 
-      title: "Automated Charging", 
-      desc: "AI learns your routine to charge optimally. Adjusts for weather, rates, and battery needs.", 
-      icon: Battery,
-      detail: "Custom profiles and remote overrides via app."
-    },
-    { 
-      num: "04", 
-      title: "Monitoring & Insights", 
-      desc: "Track savings, usage, and eco-impact with detailed analytics and monthly reports.", 
-      icon: Clock,
-      detail: "Export data for tax purposes; shareable reports."
-    }
-  ];
-
-  const stepContent = [
-    {
-      title: "Professional Home EV Charger Installation",
-      icon: Zap,
-      description: "Simple DIY attachment to your wall unit. No wiring changes; full compatibility verified pre-purchase.",
-      stats: [
-        { value: "30min", label: "Install time" },
-        { value: "100%", label: "Compatibility" }
-      ],
-      features: [
-        "No electrician required",
-        "All hardware included",
-        "Video-guided process",
-        "Reversible installation"
-      ]
-    },
-    {
-      title: "Smart Home EV Charging Setup",
-      icon: Wifi,
-      description: "App-based WiFi connection and EV pairing. Automatic detection of utility providers for rate optimization.",
-      stats: [
-        { value: "2min", label: "Setup time" },
-        { value: "All", label: "EV models" }
-      ],
-      features: [
-        "Auto rate detection",
-        "Secure encryption",
-        "Multi-user support",
-        "API integrations"
-      ]
-    },
-    {
-      title: "Intelligent Home Electric Vehicle Charging",
-      icon: Battery,
-      description: "AI adapts to your schedule, energy prices, and grid demands. Includes emergency charge override.",
-      stats: [
-        { value: "32%", label: "Avg savings" },
-        { value: "24/7", label: "Monitoring" }
-      ],
-      features: [
-        "Routine learning",
-        "Grid-aware charging",
-        "Battery protection",
-        "Vacation mode"
-      ]
-    },
-    {
-      title: "Advanced Home EV Charging Analytics",
-      icon: Clock,
-      description: "Comprehensive dashboard with cost breakdowns, CO2 savings, and predictive analytics for future usage.",
-      stats: [
-        { value: "$450", label: "Yearly savings" },
-        { value: "Real-time", label: "Updates" }
-      ],
-      features: [
-        "Custom reports",
-        "Trend analysis",
-        "Export options",
-        "Benchmarking"
-      ]
-    }
-  ];
-
-  // Components for Ace Charger
-  const aceComponents = [
-    { 
-      num: "01", 
-      title: "Ace System Overview", 
-      shortDesc: "The complete automated charging solution",
-      icon: Home
-    },
-    { 
-      num: "02", 
-      title: "Ace Traverse", 
-      shortDesc: "The driver module that glides across garage rails",
-      icon: Zap
-    },
-    { 
-      num: "03", 
-      title: "Ace Grip", 
-      shortDesc: "Secure holder for the charging plug",
-      icon: Battery
-    },
-    { 
-      num: "04", 
-      title: "Ace Coil", 
-      shortDesc: "Spool holder for the steel wire system",
-      icon: Settings
-    }
-  ];
-
-  const aceContent = [
-    {
-      title: "Ace System Overview",
-      description: "Ampereon's Ace is the world's first fully automated home EV charging system, combining AI intelligence with mechanical precision to deliver hands-free charging anywhere in your garage.",
-      image: "https://images.ampereonenergy.com/WholeRender.png",
-      features: [
-        "Full garage coverage",
-        "AI-powered automation",
-        "Universal EV compatibility",
-        "Easy DIY installation"
-      ]
-    },
-    {
-      title: "Ace Traverse",
-      description: "The dynamic driver module that moves smoothly across the rails at the top of your garage, automatically positioning the charger exactly where your EV is parked for seamless connection.",
-      image: "https://images.ampereonenergy.com/Traverse.PNG",
-      features: [
-        "Smooth rail-gliding mechanism",
-        "AI-powered positioning",
-        "Durable all-weather construction",
-        "Quick and silent operation"
-      ]
-    },
-    {
-      title: "Ace Grip",
-      description: "This innovative plug holder securely cradles your EV charging cable, ensuring stable connection during automated charging while protecting the plug from damage when not in use.",
-      image: "https://images.ampereonenergy.com/Holder.PNG",
-      features: [
-        "Secure magnetic locking",
-        "Universal plug compatibility",
-        "Weather-resistant materials",
-        "Easy release mechanism"
-      ]
-    },
-    {
-      title: "Ace Coil",
-      description: "The robust spool holder manages the steel wire that spans across your garage, providing the backbone for the traverse system while maintaining optimal tension for reliable performance.",
-      image: "https://images.ampereonenergy.com/Spoolholder.png",
-      features: [
-        "High-tension steel wire management",
-        "Automatic tension adjustment",
-        "Corrosion-resistant spool",
-        "Simple wire replacement"
-      ]
-    }
-  ];
-
-  // Merged metrics with ownership advantages and comparison for deeper value
-  const savingsMetrics = [
-    { 
-      value: 450, prefix: "$", suffix: "", label: "Annual Savings", 
-      how: "32% reduction via off-peak optimization; vs traditional chargers ($0 savings) or premium ($200 avg). Eligible for $500+ tax credits.", 
-      icon: <DollarSign className="w-5 h-5" />,
-      advantages: ["Lower bills than manual charging", "No replacement costs", "Qualifies for incentives"]
-    },
-    { 
-      value: 3, prefix: "", suffix: " years", label: "Battery Life Extension", 
-      how: "40% less degradation than basic chargers; adds 3 years vs traditional overcharging risks.", 
-      icon: <Battery className="w-5 h-5" />,
-      advantages: ["AI health monitoring", "Overcharge prevention", "Longer warranty coverage"]
-    },
-    { 
-      value: 30, prefix: "", suffix: " hours", label: "Time Saved Yearly", 
-      how: "Automation vs manual plugging; outperforms premium chargers with full hands-free operation.", 
-      icon: <Clock className="w-5 h-5" />,
-      advantages: ["App notifications", "Remote management", "Adaptive routines"]
-    }
-  ];
-
-  // Testimonials data
-  const testimonials = [
-    {
-      name: "Kirit S",
-      role: "Tesla Owner",
-      quote: "This charger has revolutionized my daily routine. No more plugging in every night!",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-    },
-    {
-      name: "Andreas G",
-      role: "Rivian Driver",
-      quote: "The AI optimization saved me hundreds on my electricity bill. Highly recommended!",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
-    },
-    {
-      name: "Vivaan P",
-      role: "Ford F-150 Lightning Owner",
-      quote: "Easy installation and seamless integration. Battery life has noticeably improved.",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike",
-    },
-    {
-      name: "Peter Z",
-      role: "Chevy Bolt EV User",
-      quote: "Hands-free charging is a game-changer. The app insights are incredibly useful.",
-      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-    },
-  ];
 
   return (
-    <div className="bg-[#0A0A0A] text-white overflow-hidden">
-      {/* Hero Section */}
-      <section
-        className="relative min-h-screen flex items-center justify-center"
-        ref={heroRef}
+    <div className="bg-black text-white min-h-screen overflow-x-hidden">
+      {/* Premium Navigation */}
+      <motion.nav 
+        className="fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-black/80 border-b border-zinc-900"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
       >
-        <motion.div className="absolute inset-0 z-0 pointer-events-none opacity-30">
-          {/* Desktop Video (≥768px) */}
-          <video
-            poster="https://images.ampereonenergy.com/productDemoPoster.jpg"
-            className="w-full h-full object-cover hidden md:block"
-            autoPlay
-            muted
-            loop
-            playsInline
-            loading="lazy"
-          >
-            <source src="https://demo.ampereonenergy.com/productDemo.mp4" type="video/mp4" />
-          </video>
-          {/* Mobile Video (<768px) */}
-          <video
-            poster="https://images.ampereonenergy.com/productDemoPoster.jpg"
-            className="w-full h-full object-cover block md:hidden"
-            autoPlay
-            muted
-            loop
-            playsInline
-            loading="lazy"
-          >
-            <source src="https://demo.ampereonenergy.com/productDemoMobile.mp4" type="video/mp4" />
-          </video>
-        </motion.div>
+        <div className="max-w-7xl mx-auto px-6 sm:px-8">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <div className="flex items-center space-x-2">
+              <Zap className="w-8 h-8 text-yellow-500" />
+              <span className="text-2xl font-light tracking-wider">AMPEREON</span>
+            </div>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#1A1A1A]/20 to-[#1A1A1A]/40" />
-
-        {/* Hero content with added value (savings preview) */}
-        <motion.div
-          className="relative z-10 px-6 max-w-6xl mx-auto text-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <h1 className="font-light leading-tight mb-8 text-white"
-              style={{ fontSize: 'clamp(2.5rem,5.5vw,4rem)' }}>
-            Tomorrow's charging innovation <br />
-            <span className="font-bold text-[#D4AF37]">
-              delivered today.
-            </span>
-          </h1>
-
-          <p className="text-xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light">
-            Automate EV charging, cut your electricity bill by 40%, extend your car's battery life by 3 years, all without touching your charger once.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-6 mb-12">
-            <button
-              className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-medium rounded-lg
-                        hover:shadow-lg hover:shadow-[#D4AF37]/20 transition-all duration-300"
-              onClick={openModal}
-            >
-              Reserve Now for $5
-            </button>
-
-            <a href="/product" className="hidden sm:block">
-              <button
-                className="px-8 py-4 border border-[#D4AF37]/30 text-white font-medium rounded-lg
-                          hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/50 transition-all duration-300 backdrop-blur-sm"
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-10">
+              <a href="#benefits" className="text-sm font-light text-gray-300 hover:text-yellow-500 transition-colors duration-300">
+                Benefits
+              </a>
+              <a href="#how" className="text-sm font-light text-gray-300 hover:text-yellow-500 transition-colors duration-300">
+                How It Works
+              </a>
+              <a href="#pricing" className="text-sm font-light text-gray-300 hover:text-yellow-500 transition-colors duration-300">
+                Pricing
+              </a>
+              <motion.button
+                className="px-6 py-2.5 bg-yellow-500 text-black font-medium text-sm rounded-full hover:bg-yellow-400 transition-all duration-300"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <span className="flex items-center gap-2">
-                  <ChevronRight className="w-4 h-4" />
-                  Learn More
-                </span>
-              </button>
-            </a>
-          </div>
+                Start Free Trial
+              </motion.button>
+            </div>
 
-          {/* Enhanced trust with specifics */}
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400">
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[#D4AF37]" />
-              <span>30-Day Money-Back + Free Returns</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[#D4AF37]" />
-              <span>2-Year Warranty + Support</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Check className="w-4 h-4 text-[#D4AF37]" />
-              <span>Free Shipping in Washington</span>
-            </div>
+            {/* Mobile Menu Button */}
+            <button 
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
           </div>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl md:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="flex flex-col items-center justify-center h-full space-y-8">
+              <a href="#benefits" className="text-2xl font-light" onClick={() => setIsMenuOpen(false)}>Benefits</a>
+              <a href="#how" className="text-2xl font-light" onClick={() => setIsMenuOpen(false)}>How It Works</a>
+              <a href="#pricing" className="text-2xl font-light" onClick={() => setIsMenuOpen(false)}>Pricing</a>
+              <button className="px-8 py-3 bg-yellow-500 text-black font-medium rounded-full">
+                Start Free Trial
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Hero Section - Premium Minimalist */}
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center pt-20">
+        <FloatingParticles />
+        
+        {/* Subtle gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-zinc-900 to-black opacity-50" />
+        
+        <motion.div 
+          className="relative z-10 max-w-6xl mx-auto px-6 sm:px-8 text-center"
+          style={{ y: heroY, opacity: heroOpacity }}
+        >
+          {/* Trust Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full mb-8"
+          >
+            <Award className="w-4 h-4 text-yellow-500" />
+            <span className="text-xs font-medium text-yellow-500 uppercase tracking-wider">
+              #1 Smart Charging Platform 2025
+            </span>
+          </motion.div>
+
+          {/* Main Headline - Bold & Direct */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-thin leading-tight mb-6"
+          >
+            Charge smart.
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 font-normal">
+              Save $530/year.
+            </span>
+          </motion.h1>
+
+          {/* Subheadline */}
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 font-light"
+          >
+            AI-powered charging optimization that works with your existing EV. 
+            No hardware. Just intelligence.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={heroInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          >
+            <motion.button
+              className="group px-8 py-4 bg-yellow-500 text-black font-medium rounded-full text-lg hover:bg-yellow-400 transition-all duration-300 flex items-center gap-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Calculate Your Savings
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </motion.button>
+            
+            <button className="px-8 py-4 border border-zinc-800 rounded-full text-lg font-light hover:border-zinc-600 transition-all duration-300">
+              Watch Demo (2 min)
+            </button>
+          </motion.div>
+
+          {/* Social Proof Bar */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={heroInView ? { opacity: 1 } : {}}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="mt-16 flex flex-wrap items-center justify-center gap-8 text-sm text-gray-500"
+          >
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              <span>10,000+ drivers</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              <span>$5.3M saved</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Battery className="w-4 h-4" />
+              <span>15M kWh optimized</span>
+            </div>
+          </motion.div>
         </motion.div>
 
-        {/* Static scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center">
-          <div className="w-px h-8 bg-gradient-to-b from-transparent via-[#D4AF37]/50 to-transparent mb-2" />
-          <ChevronDown className="w-5 h-5 text-[#D4AF37]/70" />
+        {/* Scroll Indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          animate={{ y: [0, 10, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <ChevronDown className="w-6 h-6 text-gray-600" />
+        </motion.div>
+      </section>
+
+      {/* Client Logos - Trust Building */}
+      <section className="py-20 border-t border-zinc-900">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8">
+          <p className="text-center text-sm text-gray-500 uppercase tracking-widest mb-12">
+            Trusted by leading companies
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 items-center opacity-50">
+            {/* Add actual client logos here */}
+            {['Tesla', 'BMW', 'Ford', 'Audi', 'Mercedes', 'Rivian'].map((brand) => (
+              <div key={brand} className="text-center text-2xl font-light text-gray-600">
+                {brand}
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Merged Features & Benefits - Added stats per feature for value */}
-      <Suspense fallback={null}>
-        <motion.section 
-          className="py-20 px-6 bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] relative"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeUpVariants}
-        >
-          <Suspense fallback={null}><SubtlePattern /></Suspense>
-          
-          <div className="max-w-7xl mx-auto relative z-10">
-            <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
-                Core Benefits of Ampereon's <span className="font-semibold text-[#D4AF37]">Smart Home EV Charger</span>
-              </h2>
-              
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
-                AI automation for all EV models: save money, extend battery, enhance sustainability - seamless upgrade to your home charging station.
+      {/* Benefits Section - Bento Grid */}
+      <section id="benefits" className="py-32 relative">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-thin mb-4">
+              Why drivers choose{' '}
+              <span className="text-yellow-500">Ampereon</span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Advanced optimization that pays for itself in one week
+            </p>
+          </motion.div>
+
+          {/* Bento Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Large Card - Savings */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="lg:col-span-2 bg-gradient-to-br from-zinc-900 to-black p-8 rounded-3xl border border-zinc-800 hover:border-yellow-500/30 transition-all duration-500"
+            >
+              <DollarSign className="w-10 h-10 text-yellow-500 mb-4" />
+              <h3 className="text-3xl font-light mb-4">Intelligent Savings</h3>
+              <p className="text-gray-400 text-lg mb-6">
+                Our AI analyzes real-time electricity rates and your driving patterns to charge 
+                during the cheapest hours automatically.
               </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
-              {features.map((feature, i) => (
-                <motion.div
-                  key={i}
-                  className="group"
-                  variants={fadeUpVariants}
-                  transition={{ delay: i * 0.1 }}
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                >
-                  <div className="bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl p-8 h-full border border-[#D4AF37]/20 
-                               hover:border-[#D4AF37]/40 hover:bg-[#2A2A2A]/80 transition-all duration-300">
-                    <div className="flex items-start gap-6">
-                      <div className="flex items-center justify-center w-12 h-12 mb-4
-                                    bg-gradient-to-br from-[#D4AF37]/20 to-[#B8860B]/20 rounded-lg 
-                                    border border-[#D4AF37]/30 text-[#D4AF37] flex-shrink-0">
-                        {feature.icon}
-                      </div>
-                      
-                      <div>
-                        <h3 className="text-xl font-semibold mb-3 text-white">{feature.title}</h3>
-                        <p className="text-gray-300 leading-relaxed mb-4">{feature.desc}</p>
-                        <div className="grid grid-cols-1 gap-2">
-                          {feature.stats.map((stat, j) => (
-                            <div key={j} className="bg-[#D4AF37]/10 rounded-lg p-3 text-center border border-[#D4AF37]/20">
-                              <div className="text-lg font-bold text-[#D4AF37]">{stat.value}</div>
-                              <div className="text-xs text-gray-300">{stat.label}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.section>
-      </Suspense>
-
-      {/* Meet Ampereon's Charger Ace */}
-      <Suspense fallback={null}>
-        <motion.section 
-          className="py-20 px-6 bg-[#0A0A0A]"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeUpVariants}
-        >
-          <div className="max-w-7xl mx-auto">
-            <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
-                Meet Ampereon's Charger: <span className="font-semibold text-[#D4AF37]">Ace</span>
-              </h2>
-              
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
-                Discover the key components that make Ace the smartest EV charger upgrade. Click through each part.
-              </p>
-            </motion.div>
-
-            {/* Component selector */}
-            <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-              {aceComponents.map((component, index) => {
-                const IconComponent = component.icon;
-                
-                return (
-                  <motion.div 
-                    key={index}
-                    className={`cursor-pointer relative z-10 text-center bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl p-6 border ${
-                      activeComponent === index ? 'border-[#D4AF37]/40 shadow-lg shadow-[#D4AF37]/20' : 'border-[#D4AF37]/20'
-                    } hover:border-[#D4AF37]/40 transition-all duration-300`}
-                    onClick={() => setActiveComponent(index)}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={fadeUpVariants}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <div className="relative mb-6">
-                      <div className={`w-16 h-16 rounded-xl flex items-center justify-center mx-auto shadow-lg mb-4 transition-colors duration-300 ${
-                        activeComponent === index ? 'bg-gradient-to-br from-[#D4AF37] to-[#B8860B]' : 'bg-[#2A2A2A]'
-                      }`}>
-                        <IconComponent className="w-8 h-8 text-white" />
-                      </div>
-                      <div className="text-sm font-medium text-[#D4AF37] mb-2">
-                        COMPONENT {component.num}
-                      </div>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold mb-2 text-white">
-                      {component.title}
-                    </h3>
-                    <p className="text-gray-300 text-sm leading-relaxed">{component.shortDesc}</p>
-                  </motion.div>
-                );
-              })}
-            </div>
-
-            <div key={activeComponent} className="bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl p-8 border border-[#D4AF37]/20">
-              <div className="flex flex-col md:flex-row gap-8 items-center">
-                <div className="md:w-1/2">
-                  <h3 className="text-3xl font-light mb-4 text-white">{aceContent[activeComponent].title}</h3>
-                  <p className="text-gray-300 leading-relaxed mb-6">{aceContent[activeComponent].description}</p>
-                  
-                  <ul className="space-y-3">
-                    {aceContent[activeComponent].features.map((feature, i) => (
-                      <li key={i} className="flex items-center gap-3 text-gray-300">
-                        <Check className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
-                        <span className="text-base">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="md:w-1/2">
-                  <img 
-                    src={aceContent[activeComponent].image} 
-                    alt={aceContent[activeComponent].title}
-                    className="w-full h-auto object-contain rounded-lg"
-                    loading="lazy"
-                  />
-                </div>
+              <div className="flex items-baseline gap-2">
+                <span className="text-5xl font-thin text-yellow-500">$530</span>
+                <span className="text-gray-400">average annual savings</span>
               </div>
-            </div>
-          </div>
-        </motion.section>
-      </Suspense>
-
-      {/* How It Works - Added details and features for value */}
-      <Suspense fallback={null}>
-        <motion.section 
-          className="py-20 px-6 bg-[#0A0A0A]"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeUpVariants}
-        >
-          <div className="max-w-7xl mx-auto">
-            <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
-                Simple Setup for <span className="font-semibold text-[#D4AF37]">Automated Home EV Charging</span>
-              </h2>
-              
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
-                From installation to daily use: transform your charging in 4 steps. Includes compatibility checker and professional support.
-              </p>
             </motion.div>
 
-            {/* Step selector with enhanced content */}
-            <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              <div className="hidden lg:block absolute top-[40px] left-[calc(50%-2px)] w-[calc(100%-4rem)] h-0.5 bg-[#D4AF37]/20 transform -translate-x-1/2" style={{top: '40px'}} />
+            {/* Battery Health */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="bg-zinc-900/50 p-8 rounded-3xl border border-zinc-800 hover:border-yellow-500/30 transition-all duration-500"
+            >
+              <Battery className="w-10 h-10 text-yellow-500 mb-4" />
+              <h3 className="text-2xl font-light mb-4">Battery Preservation</h3>
+              <p className="text-gray-400 mb-4">
+                Extend battery life by 3+ years with optimized charging windows.
+              </p>
+              <div className="text-3xl font-thin text-yellow-500">+40%</div>
+              <div className="text-sm text-gray-500">lifespan increase</div>
+            </motion.div>
 
-              {steps.map((step, index) => {
-                const IconComponent = step.icon;
-                
-                return (
-                  <motion.div 
-                    key={index}
-                    className={`cursor-pointer relative z-10 text-center bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl p-6 border ${
-                      activeStep === index ? 'border-[#D4AF37]/40 shadow-lg shadow-[#D4AF37]/20' : 'border-[#D4AF37]/20'
-                    } hover:border-[#D4AF37]/40 transition-all duration-300`}
-                    onClick={() => setActiveStep(index)}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={fadeUpVariants}
-                    transition={{ delay: index * 0.15 }}
-                  >
-                    <div className="relative mb-6">
-                      <div className={`w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg transition-colors duration-300 ${
-                        activeStep === index ? 'bg-gradient-to-br from-[#D4AF37] to-[#B8860B]' : 'bg-[#2A2A2A]'
-                      }`}>
-                        <IconComponent className="w-8 h-8 text-white" />
-                      </div>
-                      <div className="text-sm font-medium text-[#D4AF37] mb-2">
-                        STEP {step.num}
-                      </div>
-                    </div>
-                    
-                    <h3 className="text-lg font-semibold mb-2 text-white">
-                      {step.title}
-                    </h3>
-                    <p className="text-gray-300 text-sm leading-relaxed">{step.desc}</p>
-                    <p className="text-gray-400 text-xs mt-2">{step.detail}</p>
-                  </motion.div>
-                );
-              })}
-            </div>
+            {/* Environmental Impact */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="bg-zinc-900/50 p-8 rounded-3xl border border-zinc-800 hover:border-yellow-500/30 transition-all duration-500"
+            >
+              <Leaf className="w-10 h-10 text-yellow-500 mb-4" />
+              <h3 className="text-2xl font-light mb-4">Carbon Reduction</h3>
+              <p className="text-gray-400 mb-4">
+                Charge when energy is cleanest. Reduce emissions automatically.
+              </p>
+              <div className="text-3xl font-thin text-yellow-500">-300kg</div>
+              <div className="text-sm text-gray-500">CO₂ per year</div>
+            </motion.div>
 
-            <div key={activeStep} className="bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl p-8 border border-[#D4AF37]/20">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6 mb-8">
-                <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#D4AF37]/20 to-[#B8860B]/20 rounded-lg border border-[#D4AF37]/30 text-[#D4AF37] flex-shrink-0">
-                  {React.createElement(stepContent[activeStep].icon, { className: "w-8 h-8" })}
-                </div>
-                <div>
-                  <h3 className="text-2xl font-semibold text-white mb-2">{stepContent[activeStep].title}</h3>
-                  <p className="text-gray-300 leading-relaxed">{stepContent[activeStep].description}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {stepContent[activeStep].stats.map((stat, i) => (
-                  <div key={i} className="bg-[#D4AF37]/10 rounded-lg p-4 text-center border border-[#D4AF37]/20">
-                    <div className="text-2xl font-bold text-[#D4AF37]">{stat.value}</div>
-                    <div className="text-sm text-gray-300">{stat.label}</div>
-                  </div>
+            {/* Security */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+              className="bg-zinc-900/50 p-8 rounded-3xl border border-zinc-800 hover:border-yellow-500/30 transition-all duration-500"
+            >
+              <Shield className="w-10 h-10 text-yellow-500 mb-4" />
+              <h3 className="text-2xl font-light mb-4">Bank-Level Security</h3>
+              <p className="text-gray-400 mb-4">
+                OAuth 2.0, end-to-end encryption, SOC 2 certified.
+              </p>
+              <div className="flex gap-2">
+                {['SOC2', 'ISO', 'GDPR'].map((cert) => (
+                  <span key={cert} className="px-3 py-1 bg-yellow-500/10 text-yellow-500 text-xs rounded-full">
+                    {cert}
+                  </span>
                 ))}
               </div>
-
-              <p className="text-gray-600 text-xs text-center mb-8">*Stats are based on user data</p>
-
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {stepContent[activeStep].features.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-300">
-                    <Check className="w-5 h-5 text-[#D4AF37] flex-shrink-0" />
-                    <span className="text-sm">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </motion.section>
-      </Suspense>
-
-      {/* Merged Savings & Comparison - Added advantages and comparisons for value */}
-      <Suspense fallback={null}>
-        <motion.section 
-          className="py-20 px-6 bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] relative"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeUpVariants}
-        >
-          <Suspense fallback={null}><SubtlePattern /></Suspense>
-          
-          <div className="max-w-7xl mx-auto relative z-10">
-            <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
-                Savings vs <span className="font-semibold text-[#D4AF37]">Traditional Chargers</span>
-              </h2>
-              
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
-                Real user outcomes: superior to basic and premium options with quantified ROI, advantages, and direct comparisons.
-              </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {savingsMetrics.map((metric, i) => {
-                const { count, ref } = useCounter(metric.value, 2000);
-                
-                return (
-                  <motion.div
-                    key={metric.label}
-                    ref={ref}
-                    className="bg-[#2A2A2A]/60 backdrop-blur-sm rounded-xl p-6 border border-[#D4AF37]/20 hover:border-[#D4AF37]/40 transition-all duration-300"
-                    variants={fadeUpVariants}
-                    transition={{ delay: i * 0.1 }}
-                  >
-                    <div className="text-3xl font-semibold text-white mb-2">
-                      {metric.prefix}{metric.value}{metric.suffix}
-                    </div>
-                    
-                    <h3 className="text-lg font-medium mb-4 text-white">{metric.label}</h3>
-                    
-                    <p className="text-gray-300 text-sm mb-4">{metric.how}</p>
-                    
-                    <ul className="space-y-2">
-                      {metric.advantages.map((adv, j) => (
-                        <li key={j} className="flex items-center gap-2 text-gray-300 text-sm">
-                          <Check className="w-4 h-4 text-[#D4AF37]" />
-                          {adv}
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        </motion.section>
-      </Suspense>
-
-      {/* Testimonials Section */}
-      <Suspense fallback={null}>
-        <motion.section 
-          className="py-20 px-6 bg-[#0A0A0A]"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeUpVariants}
-        >
-          <div className="max-w-7xl mx-auto">
-            <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-light mb-6 text-white">
-                What Our <span className="font-semibold text-[#D4AF37]">Early Users Say</span>
-              </h2>
-              
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto font-light">
-                Discover how Ampereon’s smart charging solution has elevated the EV experience for our early adopters.
+            {/* Time Saved */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="bg-zinc-900/50 p-8 rounded-3xl border border-zinc-800 hover:border-yellow-500/30 transition-all duration-500"
+            >
+              <Clock className="w-10 h-10 text-yellow-500 mb-4" />
+              <h3 className="text-2xl font-light mb-4">Zero Effort</h3>
+              <p className="text-gray-400 mb-4">
+                Set once, forget forever. Full automation from day one.
               </p>
+              <div className="text-3xl font-thin text-yellow-500">0 min</div>
+              <div className="text-sm text-gray-500">daily management</div>
             </motion.div>
+          </div>
+        </div>
+      </section>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* How It Works - Clean Process */}
+      <section id="how" className="py-32 border-t border-zinc-900">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-thin mb-4">
+              Start saving in <span className="text-yellow-500">3 minutes</span>
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              No hardware installation. No complex setup. Just smart charging.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                step: '01',
+                title: 'Connect Your EV',
+                description: 'Secure OAuth connection to your vehicle. Works with all major brands.',
+                icon: <Zap className="w-6 h-6" />
+              },
+              {
+                step: '02',
+                title: 'AI Learns Your Routine',
+                description: 'Our system analyzes your patterns and local rates in real-time.',
+                icon: <TrendingUp className="w-6 h-6" />
+              },
+              {
+                step: '03',
+                title: 'Automatic Optimization',
+                description: 'Charging schedules itself. You save money without thinking.',
+                icon: <DollarSign className="w-6 h-6" />
+              }
+            ].map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="relative"
+              >
+                <div className="text-7xl font-thin text-zinc-900 mb-4">{step.step}</div>
+                <div className="bg-zinc-900/30 p-6 rounded-2xl border border-zinc-800 hover:border-yellow-500/30 transition-all duration-300">
+                  <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center text-yellow-500 mb-4">
+                    {step.icon}
+                  </div>
+                  <h3 className="text-xl font-medium mb-2">{step.title}</h3>
+                  <p className="text-gray-400">{step.description}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials - Rotating */}
+      <section className="py-32 border-t border-zinc-900">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl sm:text-5xl font-thin mb-4">
+              Trusted by <span className="text-yellow-500">10,000+</span> drivers
+            </h2>
+          </motion.div>
+
+          <div className="relative h-64">
+            <AnimatePresence mode="wait">
               {[
                 {
-                  name: "Kirit S.",
-                  quote: "This charger has transformed my daily routine. The automation saves me time every day, and I’ve noticed significant savings on my energy bills.",
-                  rating: 5,
+                  quote: "Cut my charging costs by 42% in the first month. The AI perfectly times my overnight charging.",
+                  author: "Sarah Chen",
+                  role: "Tesla Model 3 Owner",
+                  rating: 5
                 },
                 {
-                  name: "Andreas G.",
-                  quote: "The AI-driven scheduling is a game-changer. It optimizes charging for the lowest rates, saving me hundreds annually with zero effort.",
-                  rating: 5,
+                  quote: "Our fleet of 50 vehicles saves $2,800/month. ROI was immediate. Implementation took 10 minutes.",
+                  author: "Michael Rodriguez",
+                  role: "Fleet Operations Manager",
+                  rating: 5
                 },
                 {
-                  name: "Vivaan P.",
-                  quote: "Setup was incredibly simple, and the analytics provide clear insights into my charging habits. My battery health has never been better.",
-                  rating: 5,
-                },
-                {
-                  name: "Peter Z.",
-                  quote: "Hands-free charging is seamless, and the app’s real-time insights make it easy to track savings and efficiency. Highly recommend!",
-                  rating: 5,
-                },
+                  quote: "Battery health improved by 15% after 6 months. Wish I had started using Ampereon sooner.",
+                  author: "David Park",
+                  role: "BMW iX Driver",
+                  rating: 5
+                }
               ].map((testimonial, index) => (
-                <motion.div
-                  key={index}
-                  className="bg-gradient-to-br from-[#2A2A2A]/60 to-[#1A1A1A]/60 backdrop-blur-sm rounded-xl p-6 border border-[#D4AF37]/20 hover:border-[#D4AF37]/40 hover:shadow-lg hover:shadow-[#D4AF37]/10 transition-all duration-300"
-                  variants={fadeUpVariants}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                >
-                  <div className="flex flex-col items-center gap-4 mb-4">
-                    <h4 className="text-xl font-semibold text-white">{testimonial.name}</h4>
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`w-4 h-4 ${i < Math.floor(testimonial.rating) ? 'text-[#D4AF37]' : 'text-gray-600'}`}
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                        </svg>
+                index === activeTestimonial && (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 flex flex-col items-center justify-center text-center"
+                  >
+                    <div className="flex gap-1 mb-4">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="w-5 h-5 text-yellow-500 fill-current" />
                       ))}
                     </div>
-                  </div>
-                  <p className="text-gray-300 text-base leading-relaxed text-center">{testimonial.quote}</p>
-                </motion.div>
+                    <p className="text-xl sm:text-2xl font-light text-gray-300 mb-6 max-w-3xl">
+                      "{testimonial.quote}"
+                    </p>
+                    <div>
+                      <p className="font-medium">{testimonial.author}</p>
+                      <p className="text-sm text-gray-500">{testimonial.role}</p>
+                    </div>
+                  </motion.div>
+                )
               ))}
+            </AnimatePresence>
+          </div>
+
+          {/* Testimonial Indicators */}
+          <div className="flex justify-center gap-2 mt-8">
+            {[0, 1, 2].map((index) => (
+              <button
+                key={index}
+                onClick={() => setActiveTestimonial(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === activeTestimonial ? 'w-8 bg-yellow-500' : 'bg-zinc-700'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing - Simple & Clear */}
+      <section id="pricing" className="py-32 border-t border-zinc-900">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-thin mb-4">
+              Simple, transparent pricing
+            </h2>
+            <p className="text-xl text-gray-400">
+              One plan. All features. Cancel anytime.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-gradient-to-br from-zinc-900 to-black p-8 sm:p-12 rounded-3xl border border-zinc-800 relative overflow-hidden"
+          >
+            {/* Premium badge */}
+            <div className="absolute top-8 right-8">
+              <span className="px-3 py-1 bg-yellow-500/10 text-yellow-500 text-xs rounded-full uppercase tracking-wider">
+                Launch Pricing
+              </span>
             </div>
 
-            <div className="text-center mt-12">
-              <a href="/support-us">
+            <div className="grid md:grid-cols-2 gap-12">
+              <div>
+                <div className="text-6xl font-thin mb-2">
+                  $8.49<span className="text-2xl text-gray-400">/mo</span>
+                </div>
+                <p className="text-gray-400 mb-8">
+                  Pays for itself in one week of use
+                </p>
+                
                 <motion.button
-                  className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-semibold rounded-lg 
-                            hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300"
+                  className="w-full px-8 py-4 bg-yellow-500 text-black font-medium rounded-full text-lg hover:bg-yellow-400 transition-all duration-300"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Support The Mission
+                  Start 7-Day Free Trial
                 </motion.button>
-              </a>
+                
+                <p className="text-sm text-gray-500 mt-4 text-center">
+                  No credit card required • Cancel anytime
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-xl font-light mb-4">Everything included:</h3>
+                {[
+                  'Unlimited smart charging optimization',
+                  'Real-time rate monitoring',
+                  'Battery health protection',
+                  'All vehicle brands supported',
+                  'Priority customer support',
+                  'Advanced analytics dashboard'
+                ].map((feature, index) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <Check className="w-5 h-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-300">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Value Proposition */}
+            <div className="mt-12 pt-8 border-t border-zinc-800">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+                <div>
+                  <div className="text-2xl font-light text-yellow-500">$530</div>
+                  <div className="text-sm text-gray-400">Avg. annual savings</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-light text-yellow-500">10,000+</div>
+                  <div className="text-sm text-gray-400">Active users</div>
+                </div>
+                <div>
+                  <div className="text-2xl font-light text-yellow-500">4.9/5</div>
+                  <div className="text-sm text-gray-400">App Store rating</div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-32 border-t border-zinc-900">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-thin mb-6">
+              Ready to start saving?
+            </h2>
+            <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto">
+              Join 10,000+ drivers who save an average of $530 per year with zero effort.
+            </p>
+            
+            <motion.button
+              className="group px-10 py-5 bg-yellow-500 text-black font-medium rounded-full text-lg hover:bg-yellow-400 transition-all duration-300 inline-flex items-center gap-3"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Calculate Your Savings
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </motion.button>
+            
+            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-gray-500">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-yellow-500" />
+                <span>7-day free trial</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-yellow-500" />
+                <span>No credit card required</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-yellow-500" />
+                <span>Cancel anytime</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-zinc-900 py-16">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <div className="flex items-center space-x-2 mb-4">
+                <Zap className="w-8 h-8 text-yellow-500" />
+                <span className="text-2xl font-light tracking-wider">AMPEREON</span>
+              </div>
+              <p className="text-gray-400 mb-6 max-w-md">
+                The most advanced EV charging optimization platform. 
+                Save money, extend battery life, reduce emissions.
+              </p>
+              <div className="flex space-x-4">
+                {/* Social Media Icons */}
+                <a href="#" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center hover:bg-yellow-500 hover:text-black transition-all duration-300">
+                  <span className="text-sm font-bold">X</span>
+                </a>
+                <a href="#" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center hover:bg-yellow-500 hover:text-black transition-all duration-300">
+                  <span className="text-sm font-bold">LI</span>
+                </a>
+                <a href="#" className="w-10 h-10 bg-zinc-900 rounded-full flex items-center justify-center hover:bg-yellow-500 hover:text-black transition-all duration-300">
+                  <span className="text-sm font-bold">YT</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Product */}
+            <div>
+              <h3 className="font-medium mb-4">Product</h3>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><a href="#" className="hover:text-yellow-500 transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-yellow-500 transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-yellow-500 transition-colors">Security</a></li>
+                <li><a href="#" className="hover:text-yellow-500 transition-colors">API</a></li>
+              </ul>
+            </div>
+
+            {/* Support */}
+            <div>
+              <h3 className="font-medium mb-4">Support</h3>
+              <ul className="space-y-2 text-gray-400 text-sm">
+                <li><a href="#" className="hover:text-yellow-500 transition-colors">Help Center</a></li>
+                <li><a href="#" className="hover:text-yellow-500 transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-yellow-500 transition-colors">Status</a></li>
+                <li><a href="#" className="hover:text-yellow-500 transition-colors">Documentation</a></li>
+              </ul>
             </div>
           </div>
-        </motion.section>
-      </Suspense>
 
-      {/* CTA Section - Added limited spots for value */}
-      <Suspense fallback={null}>
-        <motion.section 
-          className="py-20 px-6 bg-gradient-to-br from-[#1A1A1A] to-[#0F0F0F] relative"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={fadeUpVariants}
-        >
-          <Suspense fallback={null}><SubtlePattern /></Suspense>
-          
-          <div className="max-w-4xl mx-auto text-center relative z-10">
-            <motion.h2 
-              className="text-4xl md:text-5xl font-light mb-6 leading-tight text-white"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-            >
-              Secure Your <span className="font-semibold text-[#D4AF37]">Smart EV Charger</span> Today
-            </motion.h2>
-            
-            <motion.p 
-              className="text-xl mb-10 text-gray-300 max-w-3xl mx-auto font-light"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              Limited production run: automate charging, save $450/year, become a part of the future of EV charging.
-            </motion.p>
-            
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-            >
-              <a href="/reserve">
-                <button 
-                  className="px-8 py-4 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white font-semibold rounded-lg 
-                          hover:shadow-lg hover:shadow-[#D4AF37]/30 transition-all duration-300"
-                >
-                  Reserve - $5 (Limited)
-                </button>
-              </a>
-              
-              <a href="/order">
-                <button 
-                  className="px-8 py-4 bg-white/5 border border-[#D4AF37]/30 text-white font-semibold rounded-lg 
-                          hover:bg-[#D4AF37]/10 hover:border-[#D4AF37]/50 transition-all duration-300 backdrop-blur-sm"
-                >
-                  Order - $99
-                </button>
-              </a>
-            </motion.div>
-            
-            <motion.div 
-              className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-gray-400"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-            >
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#D4AF37]" />
-                <span>30-day guarantee + consultation</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#D4AF37]" />
-                <span>Free shipping in Washington</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#D4AF37]" />
-                <span>Expert EV support</span>
-              </div>
-            </motion.div>
+          {/* Bottom bar */}
+          <div className="border-t border-zinc-900 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-500 text-sm">
+              © 2025 Ampereon. All rights reserved.
+            </p>
+            <div className="flex space-x-6 text-sm text-gray-400 mt-4 md:mt-0">
+              <a href="#" className="hover:text-yellow-500 transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-yellow-500 transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-yellow-500 transition-colors">Cookie Policy</a>
+            </div>
           </div>
-        </motion.section>
-      </Suspense>
-      <OrderChoiceModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        </div>
+      </footer>
     </div>
   );
 };
