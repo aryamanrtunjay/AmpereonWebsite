@@ -380,16 +380,16 @@ export default function AboutPage() {
   const teamMembers = [
     {
       name: "Aryaman Rtunjay",
-      role1: "Chief Executive Officer",
-      bio: "Aryaman drives Ampereon's overall vision and strategy, drawing on his engineering background to pioneer AI-powered EV charging systems that automate connections and optimize energy use for maximum efficiency.",
+      role1: "Co-Chief Executive Officer",
+      bio: "An expert in hardware design, AI development, and systems integration, Aryaman has built a liquid-fueled rocket engine, Parkinson's detector AI, and a drone based land-mapping framework. He manages Ampereon's vision and strategy alongside designing the hardware and AI architecture for Ace.",
       linkedin: "https://linkedin.com/in/aryaman-rtunjay",
       x: "https://x.com/aryamanrtunjay",
       image: { src: "/images/aryaman.jpeg", alt: "AR" }
     },
     {
       name: "Bhanu Atmakuri",
-      role1: "Chief Operating Officer",
-      bio: "Bhanu manages day-to-day operations and product development, applying his expertise in software programming and hardware design to create reliable, scalable smart charging solutions that integrate seamlessly with existing EV infrastructure.",
+      role1: "Co-Chief Executive Officer",
+      bio: "As a circuit and firmware specialist who designed circuitry for a miniature Mars rover and led Hackabyte, a nonprofit hosting hackathons for 500+ participants and raising over $4,000, Bhanu manages Ampereon's operations alongside designing the circuitry and the firmware for Ace.",
       linkedin: "https://www.linkedin.com/in/bhanu-atmakuri-9499752b3/",
       image: { src: "/images/bhanu.jpeg", alt: "BA" }
     },
